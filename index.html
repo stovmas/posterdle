@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Posterdle - Guess the Movie from its Poster</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header id="header">
+      <button id="btn-help" class="icon-btn" aria-label="How to play" title="How to play">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
+      <h1>POSTERDLE</h1>
+      <button id="btn-stats" class="icon-btn" aria-label="Statistics" title="Statistics">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 20V10M12 20V4M6 20v-6"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Puzzle Number -->
+    <div id="puzzle-info">
+      <span id="puzzle-number">Posterdle #1</span>
+    </div>
+
+    <!-- Poster Area -->
+    <div id="poster-container">
+      <canvas id="poster-canvas"></canvas>
+      <div id="poster-loading">Loading poster...</div>
+    </div>
+
+    <!-- Clue Pills -->
+    <div id="clues-area">
+      <div id="clue-pills"></div>
+    </div>
+
+    <!-- Guesses Area -->
+    <div id="guesses-area">
+      <div id="guess-list"></div>
+    </div>
+
+    <!-- Input Area -->
+    <div id="input-area">
+      <div id="search-container">
+        <input type="text" id="guess-input" placeholder="Search for a movie..." autocomplete="off" spellcheck="false">
+        <div id="autocomplete-dropdown"></div>
+      </div>
+      <button id="btn-submit" disabled>GUESS</button>
+      <button id="btn-skip">SKIP</button>
+    </div>
+
+    <!-- Game Over -->
+    <div id="game-over" class="hidden">
+      <div id="game-over-content">
+        <div id="result-icon"></div>
+        <h2 id="result-title"></h2>
+        <p id="result-movie"></p>
+        <div id="result-poster-container">
+          <img id="result-poster" alt="Movie poster">
+        </div>
+        <div id="result-details"></div>
+        <div id="result-actions">
+          <button id="btn-share" class="primary-btn">Share Result</button>
+          <div id="share-toast" class="hidden">Copied to clipboard!</div>
+        </div>
+        <div id="next-puzzle-timer">
+          <span>Next Posterdle in </span><span id="countdown"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="modal hidden">
+      <div class="modal-content">
+        <button class="modal-close">&times;</button>
+        <h2>How to Play</h2>
+        <p>Guess the movie from its blurred poster in <strong>6 tries</strong>.</p>
+        <div class="help-stages">
+          <div class="help-stage">
+            <div class="stage-num">1</div>
+            <div class="stage-desc">
+              <strong>Heavily pixelated poster</strong>
+              <span>Only colors and shapes visible</span>
+            </div>
+          </div>
+          <div class="help-stage">
+            <div class="stage-num">2</div>
+            <div class="stage-desc">
+              <strong>Less pixelated</strong> + <span class="clue-tag">Year</span>
+            </div>
+          </div>
+          <div class="help-stage">
+            <div class="stage-num">3</div>
+            <div class="stage-desc">
+              <strong>Clearer poster</strong> + <span class="clue-tag">Genre</span>
+            </div>
+          </div>
+          <div class="help-stage">
+            <div class="stage-num">4</div>
+            <div class="stage-desc">
+              <strong>Mostly visible</strong> + <span class="clue-tag">Director</span>
+            </div>
+          </div>
+          <div class="help-stage">
+            <div class="stage-num">5</div>
+            <div class="stage-desc">
+              <strong>Nearly clear</strong> + <span class="clue-tag">Lead Actor</span>
+            </div>
+          </div>
+          <div class="help-stage">
+            <div class="stage-num">6</div>
+            <div class="stage-desc">
+              <strong>Almost full poster</strong> + <span class="clue-tag">Tagline</span>
+            </div>
+          </div>
+        </div>
+        <p class="help-footer">A new Posterdle is available every day at midnight UTC.</p>
+      </div>
+    </div>
+
+    <!-- Stats Modal -->
+    <div id="stats-modal" class="modal hidden">
+      <div class="modal-content">
+        <button class="modal-close">&times;</button>
+        <h2>Statistics</h2>
+        <div id="stats-summary">
+          <div class="stat-box">
+            <div class="stat-value" id="stat-played">0</div>
+            <div class="stat-label">Played</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="stat-win-pct">0</div>
+            <div class="stat-label">Win %</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="stat-streak">0</div>
+            <div class="stat-label">Streak</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="stat-max-streak">0</div>
+            <div class="stat-label">Max Streak</div>
+          </div>
+        </div>
+        <h3>Guess Distribution</h3>
+        <div id="guess-distribution"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="movies.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
