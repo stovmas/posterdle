@@ -477,7 +477,35 @@ body {
   transform: translateY(-1px);
 }
 
+.secondary-btn {
+  padding: 12px 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-family: var(--font);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.03em;
+}
+
+.secondary-btn:hover {
+  background: var(--bg-card);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+#result-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 #share-toast {
+  width: 100%;
   margin-top: 10px;
   font-size: 0.85rem;
   color: var(--green);

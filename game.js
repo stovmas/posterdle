@@ -35,6 +35,8 @@
   let acIndex = -1;
   let posterImage = null;
   let posterLoaded = false;
+  let isRandomMode = false;
+  let dailyPuzzleNumber = 0;
 
   // --- DOM refs ---
   const canvas = document.getElementById('poster-canvas');
@@ -51,7 +53,8 @@
 
   // --- Initialization ---
   function init() {
-    puzzleNumber = getPuzzleNumber();
+    dailyPuzzleNumber = getPuzzleNumber();
+    puzzleNumber = dailyPuzzleNumber;
     todayMovie = getMovieForPuzzle(puzzleNumber);
     puzzleNumEl.textContent = `Posterdle #${puzzleNumber}`;
 
@@ -386,7 +389,7 @@
       titleEl.textContent = guessNum <= 1 ? 'Incredible!' : guessNum <= 3 ? 'Well done!' : 'Got it!';
     } else {
       iconEl.textContent = '😔';
-      titleEl.textContent = 'Better luck tomorrow!';
+      titleEl.textContent = isRandomMode ? 'Better luck next time!' : 'Better luck tomorrow!';
     }
 
     movieEl.textContent = `${todayMovie.t} (${todayMovie.y})`;
@@ -398,8 +401,12 @@
     if (todayMovie.c.length) details.push(`Starring ${todayMovie.c.join(', ')}`);
     detailsEl.innerHTML = details.join('<br>');
 
+    // Hide share & countdown for random games, show for daily
+    document.getElementById('btn-share').style.display = isRandomMode ? 'none' : '';
+    document.getElementById('next-puzzle-timer').style.display = isRandomMode ? 'none' : '';
+
     updateStats();
-    startCountdown();
+    if (!isRandomMode) startCountdown();
   }
 
   // --- Share ---
@@ -441,6 +448,8 @@
   }
 
   function updateStats() {
+    if (isRandomMode) return; // Random games don't affect stats
+
     const stats = getStats();
 
     if (stats.lastPuzzle === puzzleNumber) return; // Already recorded
@@ -512,8 +521,46 @@
     setInterval(update, 1000);
   }
 
+  // --- Random Game ---
+  function startRandomGame() {
+    // Pick a random puzzle number that's different from the current one
+    let randomNum;
+    do {
+      randomNum = Math.floor(Math.random() * MOVIES.length);
+    } while (randomNum === puzzleNumber);
+
+    isRandomMode = true;
+    puzzleNumber = randomNum;
+    todayMovie = getMovieForPuzzle(puzzleNumber);
+    guesses = [];
+    gameOver = false;
+    won = false;
+    selectedMovie = null;
+    acIndex = -1;
+    posterLoaded = false;
+
+    // Update UI
+    puzzleNumEl.textContent = `Random Game`;
+    gameOverEl.classList.add('hidden');
+    canvas.classList.remove('poster-reveal');
+
+    // Re-enable input
+    inputEl.disabled = false;
+    submitBtn.disabled = true;
+    skipBtn.disabled = false;
+    inputEl.value = '';
+
+    // Reload
+    loadPoster();
+    renderClues();
+    renderGuesses();
+    inputEl.focus();
+  }
+
   // --- Persistence ---
   function saveState() {
+    if (isRandomMode) return; // Don't persist random games
+
     const state = {
       puzzle: puzzleNumber,
       guesses: guesses,
@@ -596,6 +643,9 @@
 
     // Stats
     document.getElementById('btn-stats').addEventListener('click', () => showModal('stats-modal'));
+
+    // New random game
+    document.getElementById('btn-new-game').addEventListener('click', startRandomGame);
 
     // Share
     document.getElementById('btn-share').addEventListener('click', () => {
