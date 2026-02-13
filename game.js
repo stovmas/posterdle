@@ -142,55 +142,69 @@
     canvas.width = displayWidth;
     canvas.height = displayHeight;
 
+    // Clear canvas background
+    ctx.fillStyle = '#0f0f0f';
+    ctx.fillRect(0, 0, displayWidth, displayHeight);
+
     try {
       if (showFull) {
         canvas.style.filter = 'none';
-        drawFitted(ctx, posterImage, displayWidth, displayHeight);
+        drawContain(ctx, posterImage, displayWidth, displayHeight);
         return;
       }
 
       // Pixelation: draw small then scale up
+      // Match offscreen canvas to poster aspect ratio so nothing is cropped
+      const imgRatio = posterImage.width / posterImage.height;
       const pixW = pixelLevel;
-      const pixH = Math.round(pixelLevel * 1.5);
+      const pixH = Math.round(pixelLevel / imgRatio);
 
       const offscreen = document.createElement('canvas');
       offscreen.width = pixW;
       offscreen.height = pixH;
       const offCtx = offscreen.getContext('2d');
 
+      // Draw poster filling the offscreen canvas exactly (same aspect ratio)
       offCtx.imageSmoothingEnabled = true;
-      drawFitted(offCtx, posterImage, pixW, pixH);
+      offCtx.drawImage(posterImage, 0, 0, pixW, pixH);
 
       // Test for tainted canvas
       offCtx.getImageData(0, 0, 1, 1);
 
+      // Scale up the pixelated offscreen canvas, contained within the display canvas
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(offscreen, 0, 0, pixW, pixH, 0, 0, displayWidth, displayHeight);
+      const fitW = displayHeight * imgRatio;
+      if (fitW <= displayWidth) {
+        const x = (displayWidth - fitW) / 2;
+        ctx.drawImage(offscreen, 0, 0, pixW, pixH, x, 0, fitW, displayHeight);
+      } else {
+        const fitH = displayWidth / imgRatio;
+        const y = (displayHeight - fitH) / 2;
+        ctx.drawImage(offscreen, 0, 0, pixW, pixH, 0, y, displayWidth, fitH);
+      }
       ctx.imageSmoothingEnabled = true;
       canvas.style.filter = 'none';
     } catch (e) {
       // CORS tainted canvas - fall back to CSS blur
-      drawFitted(ctx, posterImage, displayWidth, displayHeight);
+      drawContain(ctx, posterImage, displayWidth, displayHeight);
       const CSS_BLUR = [40, 28, 18, 10, 5, 2];
       const blurAmount = showFull ? 0 : CSS_BLUR[stage] || 0;
       canvas.style.filter = blurAmount ? `blur(${blurAmount}px)` : 'none';
     }
   }
 
-  function drawFitted(context, img, w, h) {
+  function drawContain(context, img, w, h) {
     const imgRatio = img.width / img.height;
     const canvasRatio = w / h;
 
     let drawW, drawH, drawX, drawY;
 
     if (imgRatio > canvasRatio) {
-      // Image is wider than canvas — fit to width
       drawW = w;
       drawH = w / imgRatio;
       drawX = 0;
       drawY = (h - drawH) / 2;
     } else {
-      // Image is taller than canvas — fit to height
       drawH = h;
       drawW = h * imgRatio;
       drawX = (w - drawW) / 2;
