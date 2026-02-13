@@ -184,15 +184,17 @@
     let drawW, drawH, drawX, drawY;
 
     if (imgRatio > canvasRatio) {
-      drawH = h;
-      drawW = h * imgRatio;
-      drawX = (w - drawW) / 2;
-      drawY = 0;
-    } else {
+      // Image is wider than canvas — fit to width
       drawW = w;
       drawH = w / imgRatio;
       drawX = 0;
       drawY = (h - drawH) / 2;
+    } else {
+      // Image is taller than canvas — fit to height
+      drawH = h;
+      drawW = h * imgRatio;
+      drawX = (w - drawW) / 2;
+      drawY = 0;
     }
 
     context.drawImage(img, drawX, drawY, drawW, drawH);
