@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Job Listing Alerts</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Job Listing Alerts</h1>
+    <div class="header-actions">
+      <button id="btn-scan-all" class="btn btn-primary" title="Scan all sources now">Scan All Now</button>
+      <button id="btn-settings" class="btn btn-ghost" title="Notification settings">Settings</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div id="tab-list" class="tab-list"></div>
+      <button id="btn-add-tab" class="btn btn-sm btn-ghost" title="Add new alert tab">+ New Tab</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div id="tab-content" class="tab-content">
+      <div class="empty-state">
+        <p>Create a tab to get started.</p>
+        <p class="muted">Each tab represents a category of job alerts (e.g., "Sales Jobs", "Film Marketing").</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Settings Modal -->
+  <div id="modal-settings" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-body">
+      <div class="modal-header">
+        <h2>Notification Settings</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <p class="muted">Configure via environment variables in <code>.env</code> file. Current status:</p>
+        <div id="settings-status" class="settings-grid"></div>
+        <h3>Scan Interval</h3>
+        <p class="muted">Currently checking every <strong id="scan-interval">30</strong> minutes (set via CHECK_INTERVAL_MINUTES env var).</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Tab Modal -->
+  <div id="modal-add-tab" class="modal hidden">
+    <div class="modal-backdrop"></div>
+    <div class="modal-body modal-sm">
+      <div class="modal-header">
+        <h2>New Alert Tab</h2>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-content">
+        <label for="input-tab-name">Tab Name</label>
+        <input type="text" id="input-tab-name" placeholder='e.g., "Sales Jobs" or "Film Marketing"' maxlength="50">
+        <div class="modal-actions">
+          <button id="btn-create-tab" class="btn btn-primary">Create</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
